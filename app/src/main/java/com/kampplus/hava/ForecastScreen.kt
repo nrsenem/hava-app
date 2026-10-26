@@ -21,6 +21,7 @@ import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 import java.util.Locale
 import kotlin.math.roundToInt
+import androidx.compose.runtime.remember
 
 // ViewModel'i alır, state'i toplar.
 @Composable
@@ -94,6 +95,10 @@ private fun ForecastContent(subtitle: String, forecast: Forecast) {
         SectionTitle("Saatlik")
         HourlyRow(forecast.hourly)
         SectionTitle("7 Günlük")
+        OutfitCard(
+            advice = remember(forecast) { OutfitAdvisor.advise(forecast) },
+            modifier = Modifier.padding(horizontal = 16.dp)
+        )
         Card(modifier = Modifier.padding(horizontal = 16.dp)) {
             forecast.daily.forEachIndexed { index, day ->
                 if (index > 0) HorizontalDivider()
@@ -218,6 +223,33 @@ private fun Metric(label: String, value: String) {
 @Composable
 private fun SectionTitle(text: String) {
     Text(text, style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(horizontal = 16.dp))
+}
+@Composable
+private fun OutfitCard(advice: OutfitAdvice, modifier: Modifier = Modifier) {
+    Card(
+        modifier = modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.secondaryContainer
+        )
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
+            Text("Bugün ne giysem?", style = MaterialTheme.typography.labelLarge)
+            Text(advice.title, style = MaterialTheme.typography.titleLarge)
+            advice.items.forEach { item ->
+                Text(item, style = MaterialTheme.typography.bodyLarge)
+            }
+            advice.tip?.let {
+                Text(
+                    it,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.padding(top = 4.dp)
+                )
+            }
+        }
+    }
 }
 
 private fun degrees(celsius: Double) = "${celsius.roundToInt()}°"
